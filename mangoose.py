@@ -5,25 +5,31 @@
 Mango eating mongoose.
 """
 import json
+import logging
 
 import certifi as certifi
 import os
-
-__author__ = 'Ignacio Slater Muñoz'
-__project__ = ""
-__email__ = "islaterm@gmail.com"
-__version__ = "0.0.001"
-
 import urllib3
 import requests
 from bs4 import BeautifulSoup
 
+__author__ = 'Ignacio Slater Muñoz'
+__project__ = ""
+__email__ = "islaterm@gmail.com"
+__version__ = "0.0.002"
+
+logging.basicConfig(filename='mangoose.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+logger = logging.getLogger("mangoose")
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 with open("settings.json", 'r') as fp:
     config = json.load(fp)
 downloads_folder = config["downloads_folder"]
 series = config["series"]
 
+def validate(title):
+    title = title.replace(": ", " - ").replace(':', '-').replace('?', '_')
+    return title
 
 def download(chapter, dest_path):
     i = 1
@@ -34,7 +40,7 @@ def download(chapter, dest_path):
             img_url = "https:" + page_soup.find('img', {"id": "manga-page"}).attrs['src']
         except AttributeError:  # Se llegó a la última página
             break
-        print("Downloading " + chapter[0] + "; p" + str(i).zfill(3) + "...")
+        logger.info("Downloading " + chapter[0] + "; p" + str(i).zfill(3) + "...")
         response_image = requests.get(img_url, timeout=60)
         content_type = response_image.headers["Content-Type"]
         img_extension = content_type.split("/")[-1]
@@ -63,14 +69,14 @@ def eat_mango(manga_name: str, manga_url: str, skip=None):
         if chapter_id in skip:
             continue
         
-        dir_path = os.path.join(downloads_folder, manga_name, chapter_title)
+        dir_path = os.path.join(downloads_folder, validate(manga_name), validate(chapter_title))
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         
         download(chapter, dir_path)
         series[manga_name]["downloaded_chapters"].append(chapter_id)
         with open("settings.json", 'w') as json_file:
-            json.dump(config, json_file)
+            json.dump(config, json_file, indent=2)
 
 
 def parse_table(table):
@@ -88,5 +94,9 @@ def get_chapters(soup_url: BeautifulSoup):
 
 
 if __name__ == "__main__":
-    eat()
-    print("Mangoose finished eating the mangoes.")
+    try:
+        logger.info("Mangoose started eating the mangoes.")
+        eat()
+        logger.info("Mangoose finished eating the mangoes.")
+    except Exception as e:
+        logger.exception("Exception thrown at main")
