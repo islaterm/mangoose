@@ -18,12 +18,11 @@ from bs4 import BeautifulSoup
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.0.005"
+__version__ = "0.0.006"
 
-
-# TODO 0 -cAdd : Add new series via cmd.
 # TODO 0 -cAdd : Auto and manual download modes.
 # TODO 1 -cAdd : More sources.
+# TODO 1 -cFix : Handle exceptions.
 
 
 def setup_logger(a_logger, log_to_std, log_to_file):
@@ -109,6 +108,13 @@ def setup_parser(a_parser):
     a_parser.add_argument("-l", "--Logging", help="Writes execution info to a file.", action="store_true",
                           default=False)
     a_parser.add_argument("-q", "--Quiet", help="Turns off std out printing.", action="store_true", default=False)
+    group = a_parser.add_mutually_exclusive_group()
+    group.add_argument("-n", "--NewSeries",
+                       help="Adds a new series to the download list. For this to work you need to provide a name for "
+                            "the series and a valid link to the manga site containing the chapters.",
+                       nargs=2)
+    a_parser.epilog = 'An example of usage could be: mangoose.py -n \"Boku no Hero Academia\" ' \
+                      '\"https://readms.net/manga/my_hero_academia\" -d \"C:\\downloads\" -l'
 
 
 def set_downloads_folder(new_path):
@@ -120,6 +126,13 @@ def set_downloads_folder(new_path):
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
     logger.info("Downloads folder setted correctly to " + new_path)
+
+
+def add_series(series_name, chapters_url):
+    config["series"][series_name] = {"url": chapters_url, "downloaded_chapters": []}
+    with open("settings.json", 'w') as json_file:
+        json.dump(config, json_file, indent=2)
+    logger.info("Added " + series_name + " to the downloads list. New chapters will be looked up at: " + chapters_url)
 
 
 if __name__ == "__main__":
@@ -134,6 +147,8 @@ if __name__ == "__main__":
         setup_logger(logger, log_to_std=not args.Quiet, log_to_file=args.Logging)
         if args.SetDownloadsFolder:
             set_downloads_folder(args.SetDownloadsFolder)
+        if args.NewSeries:
+            add_series(args.NewSeries[0], args.NewSeries[1])
         
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         downloads_folder = config["downloads_folder"]
