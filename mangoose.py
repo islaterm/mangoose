@@ -18,21 +18,24 @@ from bs4 import BeautifulSoup
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.0.004"
+__version__ = "0.0.005"
 
 
-# TODO 0 -cAdd : Turn on off the file logger.
-# TODO 0 -cAdd : Turn on/off screen printing.
 # TODO 0 -cAdd : Add new series via cmd.
 # TODO 0 -cAdd : Auto and manual download modes.
 # TODO 1 -cAdd : More sources.
 
 
-def setup_logger(a_logger):
-    log_handler = RotatingFileHandler(filename='mangoose.log', maxBytes=50000, backupCount=1)
-    log_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+def setup_logger(a_logger, log_to_std, log_to_file):
     a_logger.setLevel(logging.INFO)
-    a_logger.addHandler(log_handler)
+    if log_to_file:
+        log_file_handler = RotatingFileHandler(filename='mangoose.log', maxBytes=50000, backupCount=1)
+        log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        a_logger.addHandler(log_file_handler)
+    if log_to_std:
+        log_std_handler = logging.StreamHandler()
+        log_std_handler.setFormatter(logging.Formatter('%(message)s'))
+        a_logger.addHandler(log_std_handler)
 
 
 def validate(title):
@@ -102,7 +105,10 @@ def get_chapters(soup_url: BeautifulSoup):
 
 
 def setup_parser(a_parser):
-    a_parser.add_argument("--SetDownloadsFolder", help="Sets the destination folder for the downloaded mangas.")
+    a_parser.add_argument("-d", "--SetDownloadsFolder", help="Sets the destination folder for the downloaded mangas.")
+    a_parser.add_argument("-l", "--Logging", help="Writes execution info to a file.", action="store_true",
+                          default=False)
+    a_parser.add_argument("-q", "--Quiet", help="Turns off std out printing.", action="store_true", default=False)
 
 
 def set_downloads_folder(new_path):
@@ -113,8 +119,8 @@ def set_downloads_folder(new_path):
     config["downloads_folder"] = new_path
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
-    logger.info("Downloads folder setted correctly as " + new_path)
-    
+    logger.info("Downloads folder setted correctly to " + new_path)
+
 
 if __name__ == "__main__":
     logger = logging.getLogger("mangoose")
@@ -125,7 +131,7 @@ if __name__ == "__main__":
     with open("settings.json", 'r') as fp:
         config = json.load(fp)
     try:
-        setup_logger(logger)
+        setup_logger(logger, log_to_std=not args.Quiet, log_to_file=args.Logging)
         if args.SetDownloadsFolder:
             set_downloads_folder(args.SetDownloadsFolder)
         
