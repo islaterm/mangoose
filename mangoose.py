@@ -4,21 +4,27 @@
 """
 Mango eating mongoose.
 """
+import argparse
 import json
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 import certifi as certifi
-import os
-import urllib3
 import requests
+import urllib3
 from bs4 import BeautifulSoup
 
 __author__ = 'Ignacio Slater Muñoz'
-__project__ = ""
+__project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.0.003"
-# TODO 0 -cAdd : Command line arguments.
+__version__ = "0.0.004"
+
+
+# TODO 0 -cAdd : Turn on off the file logger.
+# TODO 0 -cAdd : Turn on/off screen printing.
+# TODO 0 -cAdd : Add new series via cmd.
+# TODO 0 -cAdd : Auto and manual download modes.
 # TODO 1 -cAdd : More sources.
 
 
@@ -52,7 +58,6 @@ def download(chapter, dest_path):
         with open(filepath, 'wb') as img:
             img.write(response_image.content)
         i += 1
-    return
 
 
 def eat():
@@ -96,14 +101,35 @@ def get_chapters(soup_url: BeautifulSoup):
     return chapters
 
 
+def setup_parser(a_parser):
+    a_parser.add_argument("--SetDownloadsFolder", help="Sets the destination folder for the downloaded mangas.")
+
+
+def set_downloads_folder(new_path):
+    new_path = os.path.normpath(new_path)
+    if not os.path.isdir(new_path):
+        os.makedirs(new_path)
+        logger.info("Created directory " + new_path)
+    config["downloads_folder"] = new_path
+    with open("settings.json", 'w') as json_file:
+        json.dump(config, json_file, indent=2)
+    logger.info("Downloads folder setted correctly as " + new_path)
+    
+
 if __name__ == "__main__":
     logger = logging.getLogger("mangoose")
+    parser = argparse.ArgumentParser()
+    setup_parser(parser)
+    args = parser.parse_args()
+    
+    with open("settings.json", 'r') as fp:
+        config = json.load(fp)
     try:
         setup_logger(logger)
+        if args.SetDownloadsFolder:
+            set_downloads_folder(args.SetDownloadsFolder)
         
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-        with open("settings.json", 'r') as fp:
-            config = json.load(fp)
         downloads_folder = config["downloads_folder"]
         series = config["series"]
         
