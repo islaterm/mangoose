@@ -18,9 +18,8 @@ from bs4 import BeautifulSoup
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.1.000"
+__version__ = "0.2.000"
 
-# TODO 0 -cAdd : Delete entry command.
 # TODO 1 -cAdd : Manual download mode.
 # TODO 1 -cIdea : Interactive mode.
 # TODO 1 -cAdd : More sources.
@@ -121,6 +120,7 @@ def setup_parser(a_parser):
     group.add_argument("-a", "--Auto",
                        help="Downloads all the mangas added to the download list (skipping already downloaded "
                             "chapters).", action="store_true")
+    group.add_argument("--Delete", help="Deletes a series from the downloads list. This can't be undone.")
     a_parser.epilog = 'An example of usage could be: mangoose.py -n \"Boku no Hero Academia\" ' \
                       '\"https://readms.net/manga/my_hero_academia\" -d \"C:\\downloads\" -l'
 
@@ -136,11 +136,18 @@ def set_downloads_folder(new_path):
     logger.info("Downloads folder setted correctly to " + new_path)
 
 
-def add_series(series_name, chapters_url):
-    config["series"][series_name] = {"url": chapters_url, "downloaded_chapters": []}
+def add_series(title, chapters_url):
+    config["series"][title] = {"url": chapters_url, "downloaded_chapters": []}
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
-    logger.info("Added " + series_name + " to the downloads list. New chapters will be looked up at: " + chapters_url)
+    logger.info("Added " + title + " to the downloads list. New chapters will be looked up at: " + chapters_url)
+
+
+def delete_series(title):
+    config['series'].pop(title, None)
+    with open("settings.json", 'w') as json_file:
+        json.dump(config, json_file, indent=2)
+    logger.info("Deleted " + title + " from the downloads list.")
 
 
 if __name__ == "__main__":
@@ -163,6 +170,8 @@ if __name__ == "__main__":
             set_downloads_folder(args.SetDownloadsFolder)
         if args.NewSeries:
             add_series(args.NewSeries[0], args.NewSeries[1])
+        if args.Delete:
+            delete_series(args.Delete)
         if args.Auto:
             if config["series"]:
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
