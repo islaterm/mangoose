@@ -18,9 +18,11 @@ from bs4 import BeautifulSoup
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.0.006"
+__version__ = "0.1.000"
 
-# TODO 0 -cAdd : Auto and manual download modes.
+# TODO 0 -cAdd : Delete entry command.
+# TODO 1 -cAdd : Manual download mode.
+# TODO 1 -cIdea : Interactive mode.
 # TODO 1 -cAdd : More sources.
 # TODO 1 -cFix : Handle exceptions.
 
@@ -64,6 +66,7 @@ def download(chapter, dest_path):
 
 def eat():
     for title in series:
+        # noinspection PyTypeChecker
         eat_mango(title, series[title]["url"], series[title]["downloaded_chapters"])
 
 
@@ -84,7 +87,9 @@ def eat_mango(manga_name: str, manga_url: str, skip=None):
             os.makedirs(dir_path)
         
         download(chapter, dir_path)
+        # noinspection PyTypeChecker
         series[manga_name]["downloaded_chapters"].append(chapter_id)
+        
         with open("settings.json", 'w') as json_file:
             json.dump(config, json_file, indent=2)
 
@@ -113,6 +118,9 @@ def setup_parser(a_parser):
                        help="Adds a new series to the download list. For this to work you need to provide a name for "
                             "the series and a valid link to the manga site containing the chapters.",
                        nargs=2)
+    group.add_argument("-a", "--Auto",
+                       help="Downloads all the mangas added to the download list (skipping already downloaded "
+                            "chapters).", action="store_true")
     a_parser.epilog = 'An example of usage could be: mangoose.py -n \"Boku no Hero Academia\" ' \
                       '\"https://readms.net/manga/my_hero_academia\" -d \"C:\\downloads\" -l'
 
@@ -141,22 +149,31 @@ if __name__ == "__main__":
     setup_parser(parser)
     args = parser.parse_args()
     
-    with open("settings.json", 'r') as fp:
-        config = json.load(fp)
+    try:
+        with open("settings.json", 'r') as fp:
+            config = json.load(fp)
+    except FileNotFoundError:  # if file doesn't exists, starts with default values.
+        config = {
+            "downloads_folder": "C:\\tmp",
+            "series": {}
+        }
     try:
         setup_logger(logger, log_to_std=not args.Quiet, log_to_file=args.Logging)
         if args.SetDownloadsFolder:
             set_downloads_folder(args.SetDownloadsFolder)
         if args.NewSeries:
             add_series(args.NewSeries[0], args.NewSeries[1])
-        
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-        downloads_folder = config["downloads_folder"]
-        series = config["series"]
-        
-        logger.info("Mangoose started eating the mangoes.")
-        eat()
-        logger.info("Mangoose finished eating the mangoes.")
+        if args.Auto:
+            if config["series"]:
+                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                downloads_folder = config["downloads_folder"]
+                series = config["series"]
+                
+                logger.info("Mangoose started eating the mangoes.")
+                eat()
+                logger.info("Mangoose finished eating the mangoes.")
+            else:
+                logger.error("There are no mangoes for Mangoose to eat. Add them with -n MangaName MangaURL.")
     except Exception as e:
         print(e.__class__)
         logger.exception("Exception thrown at main")
