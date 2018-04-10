@@ -23,7 +23,7 @@ This will show a message with help.
 ```
 python3 mangoose.py -d "D:\Downloads\Downloaded Manga" -n "A Trail of Blood" "https://readms.net/manga/a_trail_of_blood"
 ```
-This will set the downloads folder and will add A Trail of Blood to the be 
+This will set the downloads folder and will add A Trail of Blood to be 
 downloaded (note that it will not be downloaded until you run the script again).
 ```
 python3 mangoose.py -a -l
