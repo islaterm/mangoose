@@ -6,6 +6,7 @@ Mango eating mongoose.
 """
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 
 import certifi as certifi
 import os
@@ -16,20 +17,22 @@ from bs4 import BeautifulSoup
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = ""
 __email__ = "islaterm@gmail.com"
-__version__ = "0.0.002"
+__version__ = "0.0.003"
+# TODO 0 -cAdd : Command line arguments.
+# TODO 1 -cAdd : More sources.
 
-logging.basicConfig(filename='mangoose.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-logger = logging.getLogger("mangoose")
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-with open("settings.json", 'r') as fp:
-    config = json.load(fp)
-downloads_folder = config["downloads_folder"]
-series = config["series"]
+
+def setup_logger(a_logger):
+    log_handler = RotatingFileHandler(filename='mangoose.log', maxBytes=50000, backupCount=1)
+    log_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    a_logger.setLevel(logging.INFO)
+    a_logger.addHandler(log_handler)
+
 
 def validate(title):
-    title = title.replace(": ", " - ").replace(':', '-').replace('?', '_')
+    title = title.replace(": ", " - ").replace(':', '-').replace('?', '_').replace('/', '_')
     return title
+
 
 def download(chapter, dest_path):
     i = 1
@@ -94,9 +97,19 @@ def get_chapters(soup_url: BeautifulSoup):
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger("mangoose")
     try:
+        setup_logger(logger)
+        
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        with open("settings.json", 'r') as fp:
+            config = json.load(fp)
+        downloads_folder = config["downloads_folder"]
+        series = config["series"]
+        
         logger.info("Mangoose started eating the mangoes.")
         eat()
         logger.info("Mangoose finished eating the mangoes.")
     except Exception as e:
+        print(e.__class__)
         logger.exception("Exception thrown at main")
