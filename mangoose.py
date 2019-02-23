@@ -50,6 +50,16 @@ def validate(title):
     return title
 
 
+def create_cbz(dir_path: str):
+    """
+    Creates a .cbz file from a directory and the deletes the directory.
+    Args:
+        dir_path: Path to the directory.
+    """
+    zip_file = shutil.make_archive(dir_path, 'zip', dir_path, logger=logger)
+    shutil.rmtree(dir_path, ignore_errors=True)
+
+
 def download(chapter, dest_path):
     i = 1
     while True:
@@ -71,7 +81,7 @@ def download(chapter, dest_path):
         with open(filepath, 'wb') as img:
             img.write(response_image.content)
         i += 1
-    shutil.make_archive(dest_path, 'zip', dest_path)
+    create_cbz(dest_path)
 
 
 def eat():
