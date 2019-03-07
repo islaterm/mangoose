@@ -51,13 +51,13 @@ def validate(title):
 
 
 def create_cbz(dir_path: str):
+    """ Creates a .cbz file from a directory and the deletes the directory.
+    :param dir_path: Path to the directory.
     """
-    Creates a .cbz file from a directory and the deletes the directory.
-    Args:
-        dir_path: Path to the directory.
-    """
-    zip_file = shutil.make_archive(dir_path, 'zip', dir_path, logger=logger)
+    zip_file = shutil.make_archive(dir_path, 'zip', dir_path)
     shutil.rmtree(dir_path, ignore_errors=True)
+    base, _ = os.path.splitext(zip_file)
+    os.rename(zip_file, f"{base}.cbz")
 
 
 def download(chapter, dest_path):
