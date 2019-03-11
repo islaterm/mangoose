@@ -15,18 +15,12 @@ import requests
 import urllib3
 from bs4 import BeautifulSoup
 
+from logs.logger import MangooseLogger
+
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
 __version__ = "0.2.002"
-
-
-# TODO 2 -cAdd : Manual download mode.
-# TODO 2 -cIdea : Interactive mode.
-# TODO 2 -cFix : Handle exceptions.
-# TODO 1 -cAdd : More sources.
-#   - Fallen Angels [https://fascans.com/]
-#   - Hatigarm [http://hatigarmscans.eu/]
 
 
 def setup_logger(a_logger, log_to_std, log_to_file):
@@ -201,14 +195,16 @@ def delete_series(title):
     logger.info("Deleted " + title + " from the downloads list.")
 
 
+logger: MangooseLogger
+
 if __name__ == "__main__":
-    logger = logging.getLogger("mangoose")
+    logger = MangooseLogger()
     parser = argparse.ArgumentParser()
     setup_parser(parser)
     args = parser.parse_args()
 
     try:
-        with open("settings.json", 'r') as fp:
+        with open("settings.json", 'rb') as fp:
             config = json.load(fp)
     except FileNotFoundError:  # if file doesn't exists, starts with default values.
         config = {"downloads_folder": "C:\\tmp", "series": {}}
