@@ -24,7 +24,7 @@ class MangooseLogger:
     def __init__(self, name="mangoose", level=Level.INFO):
         self._logger = logging.getLogger(name)
         self._setup(level)
-        self._logger.setLevel(level)
+        self._logger.setLevel(level.value)
         self._logger.addHandler(self._handler)
 
     @property
@@ -73,7 +73,7 @@ class LoggerGroup:
         """ Adds a new console logger to the group  """
         self._add_logger(MangooseConsoleLogger(level))
 
-    def new_file_logger(self, level: Level = Level.Info, filename: str = "mangoose.log"):
+    def new_file_logger(self, level: Level = Level.INFO, filename: str = "mangoose.log"):
         """ Adds a new file logger to the group """
         self._add_logger(MangooseFileLogger(level, filename))
 
