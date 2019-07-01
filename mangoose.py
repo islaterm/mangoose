@@ -5,37 +5,21 @@ Mango eating mongoose.
 """
 import argparse
 import json
-import logging
 import os
 import shutil
-from logging.handlers import RotatingFileHandler
 
 import certifi
 import requests
 import urllib3
 from bs4 import BeautifulSoup
 
-from logs.logger import MangooseLogger
+from logs.logger import LoggerGroup, MangooseConsoleLogger, \
+    MangooseFileLogger
 
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.2.002"
-
-
-def setup_logger(a_logger, log_to_std, log_to_file):
-    a_logger.setLevel(logging.INFO)
-    if log_to_file:
-        log_file_handler = RotatingFileHandler(
-            filename='mangoose.log', maxBytes=50000, backupCount=1)
-        log_file_handler.setFormatter(
-            logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        a_logger.addHandler(log_file_handler)
-    if log_to_std:
-        log_std_handler = logging.StreamHandler()
-        log_std_handler.setFormatter(logging.Formatter('%(message)s'))
-        a_logger.addHandler(log_std_handler)
+__version__ = "0.2.003"
 
 
 def validate(title):
@@ -65,8 +49,8 @@ def download(chapter, dest_path):
             }).attrs['src']
         except AttributeError:  # Se llegó a la última página
             break
-        logger.info("Downloading " + chapter[0] + "; p" + str(i).zfill(3) +
-                    "...")
+        loggers.info("Downloading " + chapter[0] + "; p" + str(i).zfill(3) +
+                     "...")
         response_image = requests.get(img_url, timeout=60)
         content_type = response_image.headers["Content-Type"]
         img_extension = content_type.split("/")[-1]
@@ -86,7 +70,7 @@ def eat():
 
 
 def eat_mango(manga_name: str, manga_url: str, skip=None):
-    logger.info("Looking for chapters for %s", manga_name)
+    loggers.info("Looking for chapters for %s", manga_name)
     if skip is None:
         skip = []
     response = http.request('GET', manga_url)
@@ -172,33 +156,33 @@ def set_downloads_folder(new_path):
     new_path = os.path.normpath(new_path)
     if not os.path.isdir(new_path):
         os.makedirs(new_path)
-        logger.info("Created directory " + new_path)
+        loggers.info("Created directory " + new_path)
     config["downloads_folder"] = new_path
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
-    logger.info("Downloads folder setted correctly to " + new_path)
+    loggers.info("Downloads folder setted correctly to " + new_path)
 
 
 def add_series(title, chapters_url):
     config["series"][title] = {"url": chapters_url, "downloaded_chapters": []}
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
-    logger.info("Added " + title +
-                " to the downloads list. New chapters will be looked up at: " +
-                chapters_url)
+    loggers.info("Added " + title +
+                 " to the downloads list. New chapters will be looked up at: " +
+                 chapters_url)
 
 
 def delete_series(title):
     config['series'].pop(title, None)
     with open("settings.json", 'w') as json_file:
         json.dump(config, json_file, indent=2)
-    logger.info("Deleted " + title + " from the downloads list.")
+    loggers.info("Deleted " + title + " from the downloads list.")
 
 
-logger: MangooseLogger
+loggers: LoggerGroup
 
 if __name__ == "__main__":
-    logger = MangooseLogger()
+    loggers = LoggerGroup()
     parser = argparse.ArgumentParser()
     setup_parser(parser)
     args = parser.parse_args()
@@ -209,8 +193,10 @@ if __name__ == "__main__":
     except FileNotFoundError:  # if file doesn't exists, starts with default values.
         config = {"downloads_folder": "C:\\tmp", "series": {}}
     try:
-        setup_logger(
-            logger, log_to_std=not args.Quiet, log_to_file=args.Logging)
+        if not args.Quiet:
+            loggers.add_logger(MangooseConsoleLogger())
+        if args.Logging:
+            loggers.add_logger(MangooseFileLogger())
         if args.SetDownloadsFolder:
             set_downloads_folder(args.SetDownloadsFolder)
         if args.NewSeries:
@@ -224,13 +210,13 @@ if __name__ == "__main__":
                 downloads_folder = config["downloads_folder"]
                 series = config["series"]
 
-                logger.info("Mangoose started eating the mangoes.")
+                loggers.info("Mangoose started eating the mangoes.")
                 eat()
-                logger.info("Mangoose finished eating the mangoes.")
+                loggers.info("Mangoose finished eating the mangoes.")
             else:
-                logger.error(
+                loggers.error(
                     "There are no mangoes for Mangoose to eat. Add them with -n MangaName MangaURL."
                 )
     except Exception as e:
         print(e.__class__)
-        logger.exception("Exception thrown at main")
+        loggers.error("Exception thrown at main")
