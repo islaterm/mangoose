@@ -13,13 +13,12 @@ import requests
 import urllib3
 from bs4 import BeautifulSoup
 
-from logs.logger import LoggerGroup, MangooseConsoleLogger, \
-    MangooseFileLogger
+from logs.logger import LoggerGroup
 
 __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
-__version__ = "0.2.003"
+__version__ = "0.2.004"
 
 
 def validate(title):
@@ -194,9 +193,9 @@ if __name__ == "__main__":
         config = {"downloads_folder": "C:\\tmp", "series": {}}
     try:
         if not args.Quiet:
-            loggers.add_logger(MangooseConsoleLogger())
+            loggers.new_console_logger()
         if args.Logging:
-            loggers.add_logger(MangooseFileLogger())
+            loggers.new_file_logger()
         if args.SetDownloadsFolder:
             set_downloads_folder(args.SetDownloadsFolder)
         if args.NewSeries:
