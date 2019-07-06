@@ -5,7 +5,6 @@ Mango eating mongoose.
 """
 import argparse
 import json
-import logging
 import os
 import shutil
 
@@ -21,6 +20,24 @@ __author__ = 'Ignacio Slater Muñoz'
 __project__ = "Mangoose"
 __email__ = "islaterm@gmail.com"
 __version__ = "0.2.004"
+
+
+class MangaPage:
+    _page_number: str
+    _page_url: str
+
+    def __init__(self, page_url: str, page_number: int):
+        self._page_url = page_url
+        self._page_number = str(page_number).zfill(3)
+
+    def download(self, dest_path: str):
+        response_image = requests.get(self._page_url, timeout=60)
+        content_type = response_image.headers["Content-Type"]
+        img_extension = content_type.split("/")[-1]
+        file_name = f"{self._page_number}.{img_extension}"
+        filepath = os.path.join(dest_path, file_name)
+        with open(filepath, 'wb') as img:
+            img.write(response_image.content)
 
 
 def validate(title):
