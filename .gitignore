@@ -132,3 +132,6 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 /settings.json
+
+*.bat
+*.log.1

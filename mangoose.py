@@ -5,11 +5,13 @@ Mango eating mongoose.
 """
 import argparse
 import json
+import logging
 import os
 import shutil
 
 import certifi
 import requests
+import tqdm as tqdm
 import urllib3
 from bs4 import BeautifulSoup
 
@@ -39,25 +41,18 @@ def create_cbz(dir_path: str):
 
 def download(chapter, dest_path):
     i = 1
+    manga_pages: List[MangaPage] = []
     while True:
         page_response = http.request('GET', chapter[1] + "/" + str(i))
         page_soup = BeautifulSoup(page_response.data, "html.parser")
         try:
-            img_url = "https:" + page_soup.find('img', {
-                "id": "manga-page"
-            }).attrs['src']
+            manga_pages.append(MangaPage(
+                "https:" + page_soup.find('img', {"id": "manga-page"}).attrs['src'], 1))
         except AttributeError:  # Se llegó a la última página
             break
-        loggers.info("Downloading " + chapter[0] + "; p" + str(i).zfill(3) +
-                     "...")
-        response_image = requests.get(img_url, timeout=60)
-        content_type = response_image.headers["Content-Type"]
-        img_extension = content_type.split("/")[-1]
-        file_name = "{0}.{1}".format(str(i).zfill(3), img_extension)
-        filepath = os.path.join(dest_path, file_name)
-        with open(filepath, 'wb') as img:
-            img.write(response_image.content)
         i += 1
+    for page in tqdm.tqdm(manga_pages, ascii=True, desc=f"Downloading {chapter[0]}"):
+        page.download(dest_path)
     create_cbz(dest_path)
 
 
