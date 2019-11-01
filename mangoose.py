@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+from typing import List
 
 import certifi
 import requests
@@ -64,11 +65,12 @@ def download(chapter, dest_path):
         page_soup = BeautifulSoup(page_response.data, "html.parser")
         try:
             manga_pages.append(MangaPage(
-                "https:" + page_soup.find('img', {"id": "manga-page"}).attrs['src'], 1))
+                "https:" + page_soup.find('img', {"id": "manga-page"}).attrs['src'], i))
         except AttributeError:  # Se llegó a la última página
             break
         i += 1
-    for page in tqdm.tqdm(manga_pages, ascii=True, desc=f"Downloading {chapter[0]}"):
+    print(f"Downloading {chapter[0]}")
+    for page in tqdm.tqdm(manga_pages):
         page.download(dest_path)
     create_cbz(dest_path)
 
@@ -81,7 +83,7 @@ def eat():
 
 
 def eat_mango(manga_name: str, manga_url: str, skip=None):
-    loggers.info("Looking for chapters for %s", manga_name)
+    loggers.info(f"Looking for chapters for {manga_name}")
     if skip is None:
         skip = []
     response = http.request('GET', manga_url)
@@ -101,12 +103,15 @@ def eat_mango(manga_name: str, manga_url: str, skip=None):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
-        download(chapter, dir_path)
-        # noinspection PyTypeChecker
-        series[manga_name]["downloaded_chapters"].append(chapter_id)
+        try:
+            download(chapter, dir_path)
+            # noinspection PyTypeChecker
+            series[manga_name]["downloaded_chapters"].append(chapter_id)
 
-        with open("settings.json", 'w') as json_file:
-            json.dump(config, json_file, indent=2)
+            with open("settings.json", 'w') as json_file:
+                json.dump(config, json_file, indent=2)
+        except Exception:
+            raise Exception          
 
 
 def parse_table(table):

@@ -35,6 +35,24 @@ class MangooseLogger:
     def _setup(self, level: Level):
         raise NotImplementedError("This method is intentionally not implemented")
 
+    def info(self, message: str) -> None:
+        """
+        Logs an info message.
+
+        :param message:
+            the info to be logged
+        """
+        self._logger.info(message)
+
+    def error(self, message: str) -> None:
+        """
+        Logs an error message.
+
+        :param message:
+            the info to be logged
+        """
+        self._logger.error(message)
+
 
 class MangooseFileLogger(MangooseLogger):
     """ Mangoose's app logger that logs into a file. """
@@ -84,7 +102,21 @@ class LoggerGroup:
             self._logger_names.add(logger.name)
 
     def info(self, message: str):
-        raise NotImplementedError("Info method not yet implemented")
+        """
+        Shares an info message using all the loggers of the group
+
+        :param message:
+            the message to be shared
+        """
+        for logger in self._loggers:
+            logger.info(message)
 
     def error(self, message: str):
-        raise NotImplementedError("Error method not yet implemented")
+        """
+        Shares an error message using all the loggers of the group
+
+        :param message:
+            the message to be shared
+        """
+        for logger in self._loggers:
+            logger.error(message)
