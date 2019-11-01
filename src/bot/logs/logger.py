@@ -5,6 +5,8 @@ from logging import Logger
 from logging.handlers import RotatingFileHandler
 from typing import List
 
+__author__ = "Ignacio Slater Muñoz"
+__version__ = "2.0b1"
 
 class Level(Enum):
     """ Levels of the logger.   """

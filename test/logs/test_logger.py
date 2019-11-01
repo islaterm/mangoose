@@ -3,6 +3,9 @@ from unittest import TestCase
 
 from logs.logger import MangooseLogger
 
+__author__ = "Ignacio Slater Muñoz"
+__version__ = "2.0b1"
+
 
 class TestMangooseLogger(TestCase):
     """ Mangoose logger tests.  """
