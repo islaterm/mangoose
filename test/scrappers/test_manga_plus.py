@@ -1,6 +1,14 @@
+"""
+Test set for the MANGA Plus scrapper.
+"""
 from unittest import TestCase
 
 from scrappers.manga_plus import MangooseDatabase
+
+__author__ = 'Ignacio Slater Muñoz'
+__project__ = "Mangoose"
+__email__ = "islaterm@gmail.com"
+__version__ = "1.1.1.3"
 
 # Titles
 BORUTO_TITLE = "Boruto: Naruto Next Generations"
@@ -37,7 +45,8 @@ class TestMangooseDatabase(TestCase):
             .add_series(DRAGON_BALL_SUPER_TITLE, DRAGON_BALL_SUPER_LINK)
 
     def _test_add(self):
-        assert self._test_database.size == 3
+        assert self._test_database.size == 3, \
+            f"Expected: 3, Actual: {self._test_database.size}"
         assert self._test_database.contains(ONE_PIECE_TITLE)
         assert self._test_database.get_series_link(ONE_PIECE_TITLE) == ONE_PIECE_LINK
         assert self._test_database.get_series_link(BORUTO_TITLE) == BORUTO_LINK

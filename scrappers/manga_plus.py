@@ -5,27 +5,30 @@ from typing import Dict
 
 import yaml
 
+__author__ = 'Ignacio Slater Muñoz'
+__project__ = "Mangoose"
+__email__ = "islaterm@gmail.com"
+__version__ = "1.1.1.3"
+
 
 class MangooseDatabase:
     """
     This class represents the manga database of the downloaded series and chapters.
     """
     _series: Dict[str, str]
-    _size: int
 
     def __init__(self):
         """
         Creates an empty database.
         """
         self._series = {}
-        self._size = 0
 
     @property
     def size(self) -> int:
         """
         :return: the number of entries in the database.
         """
-        return self._size
+        return len(self._series)
 
     def is_empty(self):
         """
@@ -33,8 +36,14 @@ class MangooseDatabase:
         """
         return self.size == 0
 
-    def add_series(self, param: str, param1: str) -> 'MangooseDatabase':
-        pass
+    def add_series(self, name: str, link: str) -> 'MangooseDatabase':
+        """
+        Adds a new series to the database with a link to the webpage containing the
+        chapters.
+        :return: the updated database.
+        """
+        self._series[name] = link
+        return self
 
     def contains(self, param):
         pass
