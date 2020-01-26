@@ -6,7 +6,8 @@ from logging.handlers import RotatingFileHandler
 from typing import List
 
 __author__ = "Ignacio Slater Muñoz"
-__version__ = "2.0b1"
+__version__ = "2.0.2"
+
 
 class Level(Enum):
     """ Levels of the logger.   """
@@ -66,8 +67,8 @@ class MangooseFileLogger(MangooseLogger):
     def _setup(self, level: int):
         self._handler = RotatingFileHandler(filename=self._filename, maxBytes=50000,
                                             backupCount=1)
-        self._handler.setFormatter(
-            "%(asctime)s:%(levelname)s:%(module)s:%(funcName)s:%(message)s")
+        self._handler.setFormatter(logging.Formatter(
+            fmt="%(asctime)s / %(levelname)s / %(message)s"))
 
 
 class MangooseConsoleLogger(MangooseLogger):
@@ -122,3 +123,21 @@ class LoggerGroup:
         """
         for logger in self._loggers:
             logger.error(message)
+
+
+class NullLogger(LoggerGroup):
+    """
+    Null logger to use in tests.
+    """
+
+    def __init__(self):
+        super(NullLogger, self).__init__()
+
+    def _setup(self, level: Level):
+        pass
+
+    def info(self, message: str) -> None:
+        pass
+
+    def error(self, message: str) -> None:
+        pass
