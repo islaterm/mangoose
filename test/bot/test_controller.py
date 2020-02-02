@@ -1,9 +1,9 @@
 import unittest
 
-from controller import MangooseBot
+from bot.controller import MangooseBot
 
 __author__ = "Ignacio Slater Muñoz"
-__version__ = "2.0b1"
+__version__ = "1.1.1.4"
 
 
 class MyTestCase(unittest.TestCase):
