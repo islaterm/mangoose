@@ -5,7 +5,8 @@ from typing import Dict
 
 import yaml
 
-__version__ = "2.0.0-b.1"
+__version__ = "2.0-b.2"
+
 
 class MangooseDatabase:
     """
@@ -16,8 +17,15 @@ class MangooseDatabase:
     def __init__(self):
         self._series = { }
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """ Returns the size of the database. """
         return len(self._series)
+
+    def __contains__(self, title) -> bool:
+        """ Checks if the title is in the database. """
+        if not type(title) is str:
+            raise TypeError("Database keys should be strings")
+        return title in self._series.keys()
 
     def is_empty(self) -> bool:
         """
