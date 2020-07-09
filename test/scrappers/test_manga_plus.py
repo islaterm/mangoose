@@ -5,7 +5,7 @@ import pytest
 
 from scrappers.manga_plus import MangooseDatabase
 
-__version__ = "2.0-b.2"
+__version__ = "2.0-b.3"
 
 
 def test_constructor(database: MangooseDatabase):
@@ -16,6 +16,8 @@ def test_database_operations(database: MangooseDatabase, mangas: Dict[str, str])
     assert database.is_empty()
     with pytest.raises(TypeError):
         assert 1 in database
+    with pytest.raises(TypeError):
+        database["wrong"] = 1
     populate_db(database, mangas)
     check_add(database, mangas)
     check_remove(database, mangas)
@@ -29,8 +31,9 @@ def populate_db(database: MangooseDatabase, mangas: Dict[str, str]):
 def check_add(database: MangooseDatabase, mangas: Dict[str, str]):
     assert len(database) == 0
     for title, link in mangas.items():
+        database[title] = link
         assert title in database
-        assert database.get_series_link(title) == link
+        assert database[title] == link
 
 
 def check_remove(database: MangooseDatabase, mangas: Dict[str, str]):

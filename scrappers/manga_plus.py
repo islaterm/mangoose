@@ -5,7 +5,7 @@ from typing import Dict
 
 import yaml
 
-__version__ = "2.0-b.2"
+__version__ = "2.0-b.3"
 
 
 class MangooseDatabase:
@@ -23,9 +23,19 @@ class MangooseDatabase:
 
     def __contains__(self, title) -> bool:
         """ Checks if the title is in the database. """
-        if not type(title) is str:
-            raise TypeError("Database keys should be strings")
+        MangooseDatabase.__check_title_type(title)
         return title in self._series.keys()
+
+    def __setitem__(self, title, link) -> None:
+        """ Adds an item to the database. """
+        MangooseDatabase.__check_title_type(title)
+        MangooseDatabase.__check_link_type(link)
+        self._series[title] = link
+
+    def __getitem__(self, title) -> str:
+        """ Adds an item to the database. """
+        MangooseDatabase.__check_title_type(title)
+        return self._series[title]
 
     def is_empty(self) -> bool:
         """
@@ -44,6 +54,16 @@ class MangooseDatabase:
 
     def remove(self, ONE_PIECE_TITLE):
         pass
+
+    @staticmethod
+    def __check_title_type(title) -> None:
+        if not type(title) is str:
+            raise TypeError("Database keys should be strings")
+
+    @staticmethod
+    def __check_link_type(link):
+        if not type(link) is str:
+            raise TypeError("Database links should be strings")
 
 
 class MangaPlusScrapper:
