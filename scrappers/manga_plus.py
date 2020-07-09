@@ -5,7 +5,7 @@ from typing import Dict
 
 import yaml
 
-__version__ = "2.0-b.3"
+__version__ = "2.0-b.4"
 
 
 class MangooseDatabase:
@@ -36,6 +36,9 @@ class MangooseDatabase:
         """ Adds an item to the database. """
         MangooseDatabase.__check_title_type(title)
         return self._series[title]
+    def __delitem__(self, title):
+        # TODO: Finish implementing this
+        pass
 
     def is_empty(self) -> bool:
         """
@@ -43,8 +46,6 @@ class MangooseDatabase:
         """
         return self.__len__() == 0
 
-    def remove(self, ONE_PIECE_TITLE):
-        pass
 
     @staticmethod
     def __check_title_type(title) -> None:

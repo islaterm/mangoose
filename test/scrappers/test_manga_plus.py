@@ -5,7 +5,7 @@ import pytest
 
 from scrappers.manga_plus import MangooseDatabase
 
-__version__ = "2.0-b.3"
+__version__ = "2.0-b.4"
 
 
 def test_constructor(database: MangooseDatabase):
@@ -34,7 +34,7 @@ def check_remove(database: MangooseDatabase, mangas: Dict[str, str]):
     expected_size = len(mangas)
     assert len(database) == expected_size
     for title, _ in mangas.items():
-        database.remove(title)
+        del database[title]
         expected_size -= 1
         assert len(database) == expected_size
         assert not title in database
