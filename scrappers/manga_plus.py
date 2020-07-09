@@ -43,15 +43,6 @@ class MangooseDatabase:
         """
         return self.__len__() == 0
 
-    def add_series(self, param: str, param1: str) -> 'MangooseDatabase':
-        pass
-
-    def contains(self, param):
-        pass
-
-    def get_series_link(self, param):
-        pass
-
     def remove(self, ONE_PIECE_TITLE):
         pass
 

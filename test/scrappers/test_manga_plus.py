@@ -18,14 +18,8 @@ def test_database_operations(database: MangooseDatabase, mangas: Dict[str, str])
         assert 1 in database
     with pytest.raises(TypeError):
         database["wrong"] = 1
-    populate_db(database, mangas)
     check_add(database, mangas)
     check_remove(database, mangas)
-
-
-def populate_db(database: MangooseDatabase, mangas: Dict[str, str]):
-    for title, link in mangas.items():
-        database.add_series(title, link)
 
 
 def check_add(database: MangooseDatabase, mangas: Dict[str, str]):
