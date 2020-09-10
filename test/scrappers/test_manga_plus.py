@@ -1,49 +1,57 @@
-"""
-"Mangoose" (c) by Ignacio Slater M.
-"Mangoose" is licensed under a
-Creative Commons Attribution 4.0 International License.
-You should have received a copy of the license along with this
-work. If not, see <http://creativecommons.org/licenses/by/4.0/>.
-"""
-
+import unittest
 from typing import Dict
 
 import pytest
 
 from scrappers.manga_plus import MangooseDatabase
 
-@pytest.fixture
-def titles() -> Dict[str, str]:
-    """ Example titles used for tests.  """
-    return { "Boruto: Naruto Next Generations": "https://mangaplus.shueisha.co.jp/titles/100006",
-             "One Piece": "https://mangaplus.shueisha.co.jp/titles/100020",
-             "Dragon Ball Super": "https://mangaplus.shueisha.co.jp/titles/200025" }
+__version__ = "2.0-b.4"
+
+
+def test_constructor(database: MangooseDatabase):
+    assert database.is_empty()
+
+
+def test_database_operations(database: MangooseDatabase, mangas: Dict[str, str]) -> None:
+    assert database.is_empty()
+    with pytest.raises(TypeError):
+        assert 1 in database
+    with pytest.raises(TypeError):
+        database["wrong"] = 1
+    check_add(database, mangas)
+    check_remove(database, mangas)
+
+
+def check_add(database: MangooseDatabase, mangas: Dict[str, str]):
+    assert len(database) == 0
+    for title, link in mangas.items():
+        database[title] = link
+        assert title in database
+        assert database[title] == link
+
+
+def check_remove(database: MangooseDatabase, mangas: Dict[str, str]):
+    expected_size = len(mangas)
+    assert len(database) == expected_size
+    for title, _ in mangas.items():
+        del database[title]
+        expected_size -= 1
+        assert len(database) == expected_size
+        assert not title in database
+    assert database.is_empty()
 
 
 @pytest.fixture
 def database() -> MangooseDatabase:
-    """ Database used for tests.    """
     return MangooseDatabase()
 
 
-def test_constructor(database: MangooseDatabase) -> None:
-    assert database.is_empty()
+@pytest.fixture()
+def mangas() -> Dict[str, str]:
+    return { "Boruto: Naruto Next Generations": "https://mangaplus.shueisha.co.jp/titles/100020",
+             "One Piece": "https://mangaplus.shueisha.co.jp/titles/100006",
+             "Dragon Ball Super": "https://mangaplus.shueisha.co.jp/titles/200025" }
 
 
-def test_database_operations(database: MangooseDatabase, titles: Dict[str, str]):
-    assert database.is_empty()
-    populate_db(database, titles)
-    expected_len = 3
-    assert len(database) == expected_len
-    for title, link in titles.items():
-        assert title in database
-        assert database[title] == link
-        del database[title]
-        assert title not in database
-        expected_len -= 1
-        assert len(database) == expected_len
-
-
-def populate_db(database: MangooseDatabase, titles: Dict[str, str]) -> None:
-    for title, link in titles.items():
-        database[title] = link
+if __name__ == '__main__':
+    unittest.main()

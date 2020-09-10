@@ -1,9 +1,10 @@
 """
 Scraper for MANGA Plus series.
 """
-from typing import Dict, Any
+from typing import Dict
 
 import yaml
+
 
 
 class MangooseDatabase:
@@ -13,25 +14,47 @@ class MangooseDatabase:
     _series: Dict[str, str]
 
     def __init__(self):
-        self._series = {}
+        self._series = { }
 
-    def is_empty(self):
+    def __len__(self) -> int:
+        """ Returns the size of the database. """
+        return len(self._series)
+
+    def __contains__(self, title) -> bool:
+        """ Checks if the title is in the database. """
+        MangooseDatabase.__check_title_type(title)
+        return title in self._series.keys()
+
+    def __setitem__(self, title, link) -> None:
+        """ Adds an item to the database. """
+        MangooseDatabase.__check_title_type(title)
+        MangooseDatabase.__check_link_type(link)
+        self._series[title] = link
+
+    def __getitem__(self, title) -> str:
+        """ Adds an item to the database. """
+        MangooseDatabase.__check_title_type(title)
+        return self._series[title]
+    def __delitem__(self, title):
+        # TODO: Finish implementing this
+        pass
+
+    def is_empty(self) -> bool:
         """
         :return True if the database is empty, false otherwise.
         """
-        return not len(self._series)
+        return self.__len__() == 0
 
-    def add_series(self, param: str, param1: str) -> 'MangooseDatabase':
-        pass
 
-    def contains(self, param):
-        pass
+    @staticmethod
+    def __check_title_type(title) -> None:
+        if not type(title) is str:
+            raise TypeError("Database keys should be strings")
 
-    def get_series_link(self, param):
-        pass
-
-    def remove(self, ONE_PIECE_TITLE):
-        pass
+    @staticmethod
+    def __check_link_type(link):
+        if not type(link) is str:
+            raise TypeError("Database links should be strings")
 
 
 class MangaPlusScrapper:
