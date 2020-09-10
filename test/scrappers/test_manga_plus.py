@@ -1,11 +1,16 @@
+"""
+"Mangoose" (c) by Ignacio Slater M.
+"Mangoose" is licensed under a
+Creative Commons Attribution 4.0 International License.
+You should have received a copy of the license along with this
+work. If not, see <http://creativecommons.org/licenses/by/4.0/>.
+"""
 import unittest
 from typing import Dict
 
 import pytest
 
 from scrappers.manga_plus import MangooseDatabase
-
-__version__ = "2.0-b.4"
 
 
 def test_constructor(database: MangooseDatabase):
