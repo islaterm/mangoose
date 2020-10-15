@@ -42,7 +42,7 @@ def check_remove(database: MangooseDatabase, mangas: Dict[str, str]):
         del database[title]
         expected_size -= 1
         assert len(database) == expected_size
-        assert not title in database
+        assert title not in database
     assert database.is_empty()
 
 

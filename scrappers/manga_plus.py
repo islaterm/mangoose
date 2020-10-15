@@ -6,45 +6,46 @@ from typing import Dict
 import yaml
 
 
-
 class MangooseDatabase:
     """
     This class represents the manga database of the downloaded series and chapters.
     """
-    _series: Dict[str, str]
+    __series: Dict[str, str]
 
     def __init__(self):
-        self._series = { }
+        self.__series = { }
 
     def __len__(self) -> int:
         """ Returns the size of the database. """
-        return len(self._series)
+        return len(self.__series)
 
     def __contains__(self, title) -> bool:
         """ Checks if the title is in the database. """
         MangooseDatabase.__check_title_type(title)
-        return title in self._series.keys()
+        return title in self.__series.keys()
 
     def __setitem__(self, title, link) -> None:
         """ Adds an item to the database. """
         MangooseDatabase.__check_title_type(title)
         MangooseDatabase.__check_link_type(link)
-        self._series[title] = link
+        self.__series[title] = link
 
     def __getitem__(self, title) -> str:
         """ Adds an item to the database. """
         MangooseDatabase.__check_title_type(title)
-        return self._series[title]
-    def __delitem__(self, title):
-        # TODO: Finish implementing this
-        pass
+        return self.__series[title]
+
+    def __delitem__(self, title: str) -> None:
+        """
+        Removes an item from the database.
+        """
+        del self.__series[title]
 
     def is_empty(self) -> bool:
         """
         :return True if the database is empty, false otherwise.
         """
         return self.__len__() == 0
-
 
     @staticmethod
     def __check_title_type(title) -> None:
